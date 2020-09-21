@@ -1,5 +1,5 @@
-Creates lexicon and 3-gram language model.
-Stepts:
+## Creates lexicon and 3-gram language model.
+## Steps:
 
 0) Get English section of the Dutch-English parallel Europarl corpus from here: http://statmt.org/europarl/
 
