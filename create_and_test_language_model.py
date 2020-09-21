@@ -77,7 +77,7 @@ for sent in test_data:
                 p = 1e-100  # would be improved with backoff
 
 
-        log_likelihood = np.log(p)
+        log_likelihood += np.log(p)
     N += len(toks)
 
 cross_entropy = -log_likelihood / N
