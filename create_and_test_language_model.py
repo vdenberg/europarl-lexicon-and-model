@@ -51,24 +51,36 @@ for sequence in train_sequences:
 
 json.dump(model, open('language_model_100percent.json', 'w'))
 
-test_data = load_and_pad_data('corpus/test_preprocessed_europarl.en')
-model = json.load(open('language_model_50percent.json'))
+# load test data
+test_data = load_and_pad_data('europarl.test')
 
-test_ll = 0
+log_likelihood = 0
 N = 0
-for sent in test_data:
-    toks = [el for el in sent.split(' ') if el != '']
-    for i in range(len(toks) + 1 - SEQLEN):
-        ll = 0
-        seq = toks[i:i + SEQLEN]
-        condition = ' '.join(seq[:-1])
-        observation = seq[-1]
-        try:
-            ll += np.log(model[condition][observation])
-        except KeyError:
-            ll += np.log(1e-100)
-        test_ll += ll
-        N += 1
 
-cross_entropy = -1 * test_ll / N
-pp1 = 2**cross_entropy
+for sent in test_data:
+
+    toks = [el for el in sent.split(' ') if el != '']
+
+    for i in range(len(toks) + 1 - SEQLEN):
+
+        seq = toks[i:i + SEQLEN]
+        prefix = ' '.join((seq[:-1]))
+        observation = seq[-1]
+
+        try:
+            p = model[prefix][observation]
+
+        except KeyError:
+            try:
+                p = model[prefix]['UNK']
+            except KeyError:
+                p = 1e-100  # would be improved with backoff
+
+
+        log_likelihood = np.log(p)
+    N += len(toks)
+
+cross_entropy = -log_likelihood / N
+perplexity = 2 ** cross_entropy
+print('N:', N)
+print('Perplexity:', perplexity)
